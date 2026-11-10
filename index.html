@@ -1936,43 +1936,101 @@
 
     function generateDefaultCampaignData() {
       const data = initData();
-      const baseParticipation = { 'ปผ': 97.0, 'ปอ': 93.9, 'คจ': 100.0, 'ปต': 90.9, 'ปก': 89.3, 'ปล': 95.1 };
+      const targets = {
+        'ปผ': { joined: [24, 23, 24, 23, 24, 24, 23, 24, 23, 24] },
+        'ปต': { joined: [6, 6, 7, 6, 6, 7, 6, 6, 7, 6] },
+        'ปอ': { joined: [7, 6, 7, 6, 7, 7, 6, 7, 6, 7] },
+        'คจ': { joined: [5, 6, 5, 6, 5, 6, 5, 6, 5, 5] },
+        'ปล': { joined: [5, 5, 6, 5, 5, 6, 5, 5, 5, 5] },
+        'ปก': { joined: [3, 3, 3, 3, 3, 3, 3, 3, 2, 3] }
+      };
 
       DEPARTMENTS.forEach(dept => {
         const deptEmps = getDeptEmployees(dept.id);
         const tStaff = deptEmps.length || dept.defaultStaff;
+        const joinedArr = (targets[dept.id] && targets[dept.id].joined) || [];
 
-        CAMPAIGN_MONTHS.forEach(m => {
-          const isHighSharing = (dept.id === 'คจ' || dept.id === 'ปผ');
-          const isHighIdea = (dept.id === 'ปอ' || dept.id === 'ปต');
-          
-          let partPct = +(baseParticipation[dept.id] + (((m * 7) % 5) * 0.6 - 1.2)).toFixed(1);
-          partPct = Math.min(100, Math.max(82, partPct));
-          
-          let joinedCount = Math.round(tStaff * (partPct / 100));
-          if (dept.id === 'คจ' && m === 10) joinedCount = tStaff;
-
+        CAMPAIGN_MONTHS.forEach((m, idx) => {
+          const joinedCount = joinedArr[idx] !== undefined ? joinedArr[idx] : Math.round(tStaff * 0.95);
           const attendedIds = deptEmps.slice(0, joinedCount).map(e => e.id);
           const actualPct = +(attendedIds.length / tStaff * 100).toFixed(1);
 
-          data[dept.id][m] = {
+          let rec = {
             env_report: true,
-            env_sharing: isHighSharing ? 2 : (m % 2 === 0 ? 1 : 0),
-            km_portal: isHighSharing ? 2 : (m % 3 === 0 ? 1 : 0),
-            opex_portal: isHighSharing ? 1 : (m % 4 === 0 ? 1 : 0),
-            pr_safety: 2,
-            env_substandard: ((dept.id.charCodeAt(0) + m) % 6) + 3,
+            env_sharing: 0,
+            km_portal: 0,
+            opex_portal: 0,
+            pr_safety: 0,
+            env_substandard: 0,
             no_accident: true,
-            no_ncr: (m % 5 !== 0),
+            no_ncr: true,
             no_abnormal: true,
-            triple_zero: (m % 5 !== 0),
-            waste_reduction: 120 + ((m * 23) % 150),
-            green_idea: isHighIdea ? 1 : 0,
+            triple_zero: true,
+            waste_reduction: 0,
+            green_idea: 0,
             total_staff: tStaff,
             joined_staff: attendedIds.length,
             participation: actualPct,
             attended_emp_ids: attendedIds
           };
+
+          if (dept.id === 'ปผ') {
+            rec.env_report = true;
+            rec.env_sharing = 12;
+            rec.km_portal = (m <= 4) ? 13 : 12;
+            rec.opex_portal = (m === 11) ? 3 : 2;
+            rec.pr_safety = 2;
+            rec.env_substandard = (m === 11) ? 46 : 45;
+            rec.waste_reduction = (m === 11) ? 2566 : 2565;
+            rec.green_idea = (m === 3 || m === 8) ? 1 : 0;
+          } else if (dept.id === 'ปต') {
+            rec.env_report = true;
+            rec.env_sharing = (m === 11) ? 6 : 5;
+            rec.km_portal = (m === 11) ? 6 : 5;
+            rec.opex_portal = (m <= 8) ? 2 : 1;
+            rec.pr_safety = (m === 2) ? 1 : 0;
+            rec.env_substandard = (m === 2) ? 6 : 0;
+            rec.waste_reduction = 0;
+            rec.green_idea = (m === 2 || m === 4 || m === 6 || m === 8 || m === 10) ? 1 : 0;
+          } else if (dept.id === 'ปอ') {
+            rec.env_report = (m <= 9);
+            rec.env_sharing = (m <= 5) ? 6 : 5;
+            rec.km_portal = (m <= 4) ? 6 : 5;
+            rec.opex_portal = (m === 11) ? 1 : 2;
+            rec.pr_safety = (m === 2) ? 1 : 0;
+            rec.env_substandard = (m === 2) ? 6 : 0;
+            rec.waste_reduction = 0;
+            rec.green_idea = (m === 3 || m === 6 || m === 9) ? 1 : 0;
+          } else if (dept.id === 'คจ') {
+            rec.env_report = true;
+            rec.env_sharing = 4;
+            rec.km_portal = 4;
+            rec.opex_portal = 2;
+            rec.pr_safety = 1;
+            rec.env_substandard = 24;
+            rec.waste_reduction = 0;
+            rec.green_idea = (m === 4 || m === 7) ? 1 : 0;
+          } else if (dept.id === 'ปล') {
+            rec.env_report = true;
+            rec.env_sharing = 3;
+            rec.km_portal = 3;
+            rec.opex_portal = (m <= 5) ? 2 : 1;
+            rec.pr_safety = (m <= 9) ? 1 : 0;
+            rec.env_substandard = (m >= 10) ? 20 : 19;
+            rec.waste_reduction = 0;
+            rec.green_idea = 0;
+          } else if (dept.id === 'ปก') {
+            rec.env_report = (m <= 7);
+            rec.env_sharing = 1;
+            rec.km_portal = 1;
+            rec.opex_portal = (m <= 5) ? 1 : 0;
+            rec.pr_safety = (m <= 5) ? 1 : 0;
+            rec.env_substandard = 12;
+            rec.waste_reduction = 0;
+            rec.green_idea = (m === 5) ? 1 : 0;
+          }
+
+          data[dept.id][m] = rec;
         });
       });
       return data;
@@ -1980,42 +2038,24 @@
 
     function loadScores() {
       try {
-        const saved = localStorage.getItem('green_champion_scores_v2');
+        const saved = localStorage.getItem('green_champion_scores_v3_official');
         if (saved) {
           const parsed = JSON.parse(saved);
-          // Ensure all departments & months have attended_emp_ids
-          DEPARTMENTS.forEach(d => {
-            if (!parsed[d.id]) parsed[d.id] = {};
-            const deptEmps = getDeptEmployees(d.id);
-            for (let m = 1; m <= 12; m++) {
-              if (!parsed[d.id][m]) {
-                parsed[d.id][m] = createEmptyMonthRecord(d.id);
-              } else {
-                parsed[d.id][m].total_staff = deptEmps.length || d.defaultStaff;
-                if (!Array.isArray(parsed[d.id][m].attended_emp_ids)) {
-                  const j = parsed[d.id][m].joined_staff !== undefined ? parsed[d.id][m].joined_staff : Math.round(parsed[d.id][m].total_staff * 0.95);
-                  parsed[d.id][m].attended_emp_ids = deptEmps.slice(0, j).map(e => e.id);
-                }
-                parsed[d.id][m].joined_staff = parsed[d.id][m].attended_emp_ids.length;
-                parsed[d.id][m].participation = +(parsed[d.id][m].joined_staff / parsed[d.id][m].total_staff * 100).toFixed(1);
-                if (typeof parsed[d.id][m].env_sharing === 'boolean') parsed[d.id][m].env_sharing = parsed[d.id][m].env_sharing ? 1 : 0;
-                if (typeof parsed[d.id][m].km_portal === 'boolean') parsed[d.id][m].km_portal = parsed[d.id][m].km_portal ? 1 : 0;
-                if (typeof parsed[d.id][m].opex_portal === 'boolean') parsed[d.id][m].opex_portal = parsed[d.id][m].opex_portal ? 1 : 0;
-                if (typeof parsed[d.id][m].pr_safety === 'boolean') parsed[d.id][m].pr_safety = parsed[d.id][m].pr_safety ? 1 : 0;
-              }
-            }
-          });
           return parsed;
         }
       } catch (e) {
         console.warn('Failed to load local storage:', e);
       }
-      return generateDefaultCampaignData();
+      const initial = generateDefaultCampaignData();
+      try {
+        localStorage.setItem('green_champion_scores_v3_official', JSON.stringify(initial));
+      } catch (e) {}
+      return initial;
     }
 
     function saveScores() {
       try {
-        localStorage.setItem('green_champion_scores_v2', JSON.stringify(scoresData));
+        localStorage.setItem('green_champion_scores_v3_official', JSON.stringify(scoresData));
       } catch (e) {
         console.warn('Failed to save to local storage:', e);
       }
@@ -3040,59 +3080,12 @@
         alert('⚠️ เฉพาะ Admin เท่านั้นที่สามารถสร้างข้อมูลจำลองได้');
         return;
       }
-      if (!confirm('ต้องการเติมข้อมูลจำลองสมจริงสำหรับทั้ง 6 หน่วยงาน ในช่วงรอบโครงการ (ก.พ. ถึง 5 พ.ย.) จากฐานข้อมูลพนักงานจริง 224 คนใช่หรือไม่?')) return;
-
-      const baseParticipation = { 'ปผ': 97.0, 'ปอ': 93.9, 'คจ': 100.0, 'ปต': 90.9, 'ปก': 89.3, 'ปล': 95.1 };
-
-      DEPARTMENTS.forEach(dept => {
-        const deptEmps = getDeptEmployees(dept.id);
-        const tStaff = deptEmps.length;
-
-        CAMPAIGN_MONTHS.forEach(m => {
-          const isHighSharing = (dept.id === 'คจ' || dept.id === 'ปผ');
-          const isHighIdea = (dept.id === 'ปอ' || dept.id === 'ปต');
-          
-          let partPct = +(baseParticipation[dept.id] + (Math.random() * 3.5 - 1.5)).toFixed(1);
-          partPct = Math.min(100, Math.max(80, partPct));
-          
-          let joinedCount = Math.round(tStaff * (partPct / 100));
-          if (dept.id === 'คจ' && m === 10) joinedCount = tStaff; // 100% complete demo for คจ
-
-          const shuffled = [...deptEmps].sort(() => 0.5 - Math.random());
-          const attendedIds = shuffled.slice(0, joinedCount).map(e => e.id);
-          const actualPct = +(attendedIds.length / tStaff * 100).toFixed(1);
-
-          scoresData[dept.id][m] = {
-            env_report: Math.random() > 0.05,
-            env_sharing: isHighSharing ? (Math.floor(Math.random() * 3) + 1) : (Math.random() > 0.3 ? 1 : 0),
-            km_portal: isHighSharing ? (Math.floor(Math.random() * 3) + 1) : (Math.random() > 0.35 ? 1 : 0),
-            opex_portal: Math.random() > 0.3 ? 1 : 0,
-            pr_safety: Math.floor(Math.random() * 4) + 1,
-            env_substandard: Math.floor(Math.random() * 8) + 2,
-            no_accident: Math.random() > 0.04,
-            no_ncr: Math.random() > 0.08,
-            no_abnormal: Math.random() > 0.05,
-            triple_zero: true,
-            waste_reduction: Math.floor(Math.random() * 350) + 50,
-            green_idea: isHighIdea ? (Math.floor(Math.random() * 3) + 1) : (Math.random() > 0.4 ? 1 : 0),
-            total_staff: tStaff,
-            joined_staff: attendedIds.length,
-            participation: actualPct,
-            attended_emp_ids: attendedIds
-          };
-
-          scoresData[dept.id][m].triple_zero = (
-            scoresData[dept.id][m].no_accident && 
-            scoresData[dept.id][m].no_ncr && 
-            scoresData[dept.id][m].no_abnormal
-          );
-        });
-      });
-
+      if (!confirm('ต้องการรีเซ็ตข้อมูลให้เป็นคะแนนทางการรอบโครงการ (ก.พ. ถึง 5 พ.ย.) ตามสรุปผลใช่หรือไม่?')) return;
+      scoresData = generateDefaultCampaignData();
       saveScores();
       renderAll();
       loadDepartmentForm();
-      alert('🎲 เติมข้อมูลจำลองรอบ ก.พ. - 5 พ.ย. พร้อมฐานข้อมูลพนักงานจริง 224 คนเรียบร้อยแล้ว!');
+      alert('✅ อัปเดตข้อมูลคะแนนทางการรอบโครงการ (ก.พ. - 5 พ.ย.) เรียบร้อยแล้ว!');
     }
 
     /* Event Listeners */
@@ -3182,12 +3175,12 @@
         alert('⚠️ เฉพาะ Admin เท่านั้นที่สามารถล้างข้อมูลได้');
         return;
       }
-      if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลคะแนนทั้งหมด? (ไม่สามารถกู้คืนได้)')) return;
-      scoresData = initData();
+      if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตข้อมูลคะแนนทั้งหมดกลับเป็นคะแนนทางการเริ่มต้น?')) return;
+      scoresData = generateDefaultCampaignData();
       saveScores();
       renderAll();
       loadDepartmentForm();
-      alert('ล้างข้อมูลเรียบร้อยแล้ว');
+      alert('รีเซ็ตข้อมูลคะแนนเรียบร้อยแล้ว');
     });
 
     document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
