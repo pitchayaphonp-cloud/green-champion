@@ -1979,8 +1979,8 @@
             rec.env_sharing = 12;
             rec.km_portal = (m <= 4) ? 13 : 12;
             rec.opex_portal = (m === 11) ? 3 : 2;
-            rec.pr_safety = 2;
-            rec.env_substandard = (m === 11) ? 46 : 45;
+            rec.pr_safety = 0;
+            rec.env_substandard = (m === 11) ? 56 : 55;
             rec.waste_reduction = (m === 11) ? 2566 : 2565;
             rec.green_idea = (m === 3 || m === 8) ? 1 : 0;
           } else if (dept.id === 'ปต') {
@@ -1988,17 +1988,17 @@
             rec.env_sharing = (m === 11) ? 6 : 5;
             rec.km_portal = (m === 11) ? 6 : 5;
             rec.opex_portal = (m <= 8) ? 2 : 1;
-            rec.pr_safety = (m === 2) ? 1 : 0;
-            rec.env_substandard = (m === 2) ? 6 : 0;
+            rec.pr_safety = 0;
+            rec.env_substandard = (m === 11) ? 2 : 1;
             rec.waste_reduction = 0;
             rec.green_idea = (m === 2 || m === 4 || m === 6 || m === 8 || m === 10) ? 1 : 0;
           } else if (dept.id === 'ปอ') {
-            rec.env_report = (m <= 9);
-            rec.env_sharing = (m <= 5) ? 6 : 5;
-            rec.km_portal = (m <= 4) ? 6 : 5;
-            rec.opex_portal = (m === 11) ? 1 : 2;
-            rec.pr_safety = (m === 2) ? 1 : 0;
-            rec.env_substandard = (m === 2) ? 6 : 0;
+            rec.env_report = true;
+            rec.env_sharing = (m <= 9) ? 5 : 4;
+            rec.km_portal = (m <= 8) ? 5 : 4;
+            rec.opex_portal = 2;
+            rec.pr_safety = 0;
+            rec.env_substandard = (m === 2) ? 1 : 0;
             rec.waste_reduction = 0;
             rec.green_idea = (m === 3 || m === 6 || m === 9) ? 1 : 0;
           } else if (dept.id === 'คจ') {
@@ -2006,8 +2006,8 @@
             rec.env_sharing = 4;
             rec.km_portal = 4;
             rec.opex_portal = 2;
-            rec.pr_safety = 1;
-            rec.env_substandard = 24;
+            rec.pr_safety = 0;
+            rec.env_substandard = 29;
             rec.waste_reduction = 0;
             rec.green_idea = (m === 4 || m === 7) ? 1 : 0;
           } else if (dept.id === 'ปล') {
@@ -2015,17 +2015,17 @@
             rec.env_sharing = 3;
             rec.km_portal = 3;
             rec.opex_portal = (m <= 5) ? 2 : 1;
-            rec.pr_safety = (m <= 9) ? 1 : 0;
-            rec.env_substandard = (m >= 10) ? 20 : 19;
+            rec.pr_safety = 0;
+            rec.env_substandard = (m >= 10) ? 24 : 23;
             rec.waste_reduction = 0;
             rec.green_idea = 0;
           } else if (dept.id === 'ปก') {
-            rec.env_report = (m <= 7);
+            rec.env_report = true;
             rec.env_sharing = 1;
-            rec.km_portal = 1;
-            rec.opex_portal = (m <= 5) ? 1 : 0;
-            rec.pr_safety = (m <= 5) ? 1 : 0;
-            rec.env_substandard = 12;
+            rec.km_portal = 0;
+            rec.opex_portal = 0;
+            rec.pr_safety = 0;
+            rec.env_substandard = 14;
             rec.waste_reduction = 0;
             rec.green_idea = (m === 5) ? 1 : 0;
           }
@@ -2038,7 +2038,7 @@
 
     function loadScores() {
       try {
-        const saved = localStorage.getItem('green_champion_scores_v3_official');
+        const saved = localStorage.getItem('green_champion_scores_v4_final');
         if (saved) {
           const parsed = JSON.parse(saved);
           return parsed;
@@ -2048,14 +2048,14 @@
       }
       const initial = generateDefaultCampaignData();
       try {
-        localStorage.setItem('green_champion_scores_v3_official', JSON.stringify(initial));
+        localStorage.setItem('green_champion_scores_v4_final', JSON.stringify(initial));
       } catch (e) {}
       return initial;
     }
 
     function saveScores() {
       try {
-        localStorage.setItem('green_champion_scores_v3_official', JSON.stringify(scoresData));
+        localStorage.setItem('green_champion_scores_v4_final', JSON.stringify(scoresData));
       } catch (e) {
         console.warn('Failed to save to local storage:', e);
       }
